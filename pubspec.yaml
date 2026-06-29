@@ -1,7 +1,7 @@
 name: maestro_bdd_generator
 description: CLI that converts Gherkin .feature scenarios into Maestro .yaml test templates with smart merge support.
 version: 1.0.0
-repository: https://github.com/diasgabriel/maestro_bdd_generator
+repository: https://github.com/gabrielMorais21/maestro_bdd_generator
 
 environment:
   sdk: ^3.11.5
