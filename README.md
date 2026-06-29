@@ -1,135 +1,110 @@
 # Maestro BDD Generator
 
-CLI em Dart para gerar arquivos de teste do Maestro (.yaml) a partir de arquivos BDD/Gherkin (.feature), com suporte a Smart Merge para preservar comandos já preenchidos.
+CLI em Dart para transformar cenarios BDD/Gherkin (.feature) em arquivos de teste do Maestro (.yaml), com Smart Merge para preservar comandos ja preenchidos quando voce regenera.
 
-## O que este projeto faz
+## O que voce consegue fazer
 
-- Lê arquivos .feature.
-- Divide cada Scenario em um arquivo .yaml separado.
-- Mantém o contexto da Feature em cada arquivo gerado.
-- Preserva comandos já existentes por passo quando você regenera os arquivos (Smart Merge).
-- Permite definir o appId via argumento de linha de comando.
+- Ler arquivos .feature (arquivo unico ou pasta).
+- Gerar um .yaml por Scenario.
+- Manter o contexto da Feature nos arquivos gerados.
+- Reaproveitar blocos ja editados manualmente (Smart Merge).
+- Definir o appId de saida via argumento.
 
-## Pré-requisitos
+## Requisitos
 
 - Dart SDK 3.11.5 ou superior.
 
-## Instalação
+## Instalar e usar (pub.dev)
 
-### 1. Instalar dependências
-
-No diretório do projeto, execute:
+Instale o executavel globalmente:
 
 ```bash
-dart pub get
+dart pub global activate maestro_bdd_generator
 ```
 
-### 2. Executar sem instalar globalmente
+Depois, valide a instalacao:
 
 ```bash
-dart run bin/maestro_bdd_generator.dart --help
-```
-
-### 3. (Opcional) Ativar como comando global
-
-Este projeto expõe o executável maestro_bdd.
-
-```bash
-dart pub global activate --source path .
 maestro_bdd --help
 ```
 
-Se o comando não for encontrado, adicione o diretório de binários globais do Dart ao PATH.
+Se o comando nao for encontrado, adicione o diretorio de binarios globais ao PATH:
 
-## Uso rápido
+- macOS/Linux: $HOME/.pub-cache/bin
+- Windows: %LOCALAPPDATA%\Pub\Cache\bin
 
-Comando padrão:
+## Uso rapido
+
+Comando:
 
 ```bash
 maestro_bdd [opcoes]
 ```
 
-Opções:
+Opcoes principais:
 
 - -h, --help: mostra ajuda.
-- -i, --input: caminho para arquivo .feature ou pasta.
-	- padrão: integration_test/
-- --app-id: define o appId de saída (exemplo: com.suaempresa.app).
+- -i, --input: caminho para arquivo .feature ou pasta (padrao: integration_test/).
+- --app-id: define o appId de saida (exemplo: com.suaempresa.app).
 
-## Tutoriais
+## Exemplos prontos
 
-### Tutorial 1: Gerar arquivos a partir da pasta padrão
-
-Quando você roda apenas o comando com app-id, o CLI procura arquivos .feature em integration_test/ (recursivamente).
+Gerar a partir da pasta padrao (integration_test/):
 
 ```bash
 maestro_bdd --app-id com.suaempresa.app
 ```
 
-Resultado esperado:
-
-- Cada Scenario vira um arquivo separado.
-- Exemplo: login.feature com 2 cenários gera:
-	- login_scenario_1.yaml
-	- login_scenario_2.yaml
-
-### Tutorial 2: Usar uma pasta personalizada
+Gerar a partir de uma pasta personalizada:
 
 ```bash
 maestro_bdd --input features/ --app-id com.suaempresa.app
 ```
 
-Use este modo quando seus arquivos .feature não estiverem em integration_test/.
-
-### Tutorial 3: Atualizar um único arquivo .feature
+Gerar para um unico arquivo .feature:
 
 ```bash
-maestro_bdd --input integration_test/login.feature
+maestro_bdd --input integration_test/login.feature --app-id com.suaempresa.app
 ```
 
-Recomendado para ciclo rápido de edição de um cenário específico.
+## Smart Merge na pratica
 
-### Tutorial 4: Entender o Smart Merge (preservar comandos)
-
-Fluxo sugerido:
+Fluxo recomendado:
 
 1. Gere os YAMLs pela primeira vez.
-2. Preencha manualmente os comandos do Maestro abaixo de cada passo marcado com:
-	 - # TODO: Cole os comandos do Maestro Studio aqui
+2. Preencha manualmente os comandos do Maestro abaixo dos TODOs.
 3. Rode o gerador novamente para o mesmo .feature.
 
-O que acontece:
+Comportamento esperado:
 
-- Os blocos já preenchidos para cada passo são reaproveitados.
-- Novos passos recebem TODO automaticamente.
-- O arquivo continua sincronizado com o BDD, sem perder o trabalho manual.
+- Blocos ja preenchidos por passo sao preservados.
+- Passos novos recebem TODO automaticamente.
+- O YAML continua alinhado ao BDD sem perder trabalho manual.
 
-### Tutorial 5: Controle do appId
+## Regras do appId
 
-Regras:
-
-- Se você passar --app-id, esse valor é usado no YAML.
-- Se não passar --app-id e já existir YAML com appId, ele é mantido.
-- Se não houver appId existente, o gerador usa fallback:
+- Se voce passar --app-id, esse valor e usado no YAML.
+- Se nao passar --app-id e ja existir YAML com appId, ele e mantido.
+- Se nao houver appId existente, o fallback sera:
 
 ```yaml
 appId: com.example.app # TODO: Substitua pelo ID real do app
 ```
 
-## Exemplo de arquivo .feature
+## Exemplo de entrada (.feature)
 
 ```gherkin
 Feature: Login
-	Como usuario
-	Quero entrar no app
+  Como usuario
+  Quero entrar no app
 
 Scenario: Login com sucesso
-	Given que abri o app
-	When informo usuario e senha validos
-	Then devo ver a home
+  Given que abri o app
+  When informo usuario e senha validos
+  Then devo ver a home
 ```
 
-## Exemplo de saída .yaml (resumido)
+## Exemplo de saida (.yaml resumido)
 
 ```yaml
 appId: com.suaempresa.app
@@ -145,70 +120,32 @@ appId: com.suaempresa.app
 # Scenario: Login com sucesso
 # --------------------------------------------------
 
-# 📝 Passo: Given que abri o app
+# Passo: Given que abri o app
 # TODO: Cole os comandos do Maestro Studio aqui
 
-# 📝 Passo: When informo usuario e senha validos
+# Passo: When informo usuario e senha validos
 # TODO: Cole os comandos do Maestro Studio aqui
 
-# 📝 Passo: Then devo ver a home
+# Passo: Then devo ver a home
 # TODO: Cole os comandos do Maestro Studio aqui
 ```
 
-## Erros comuns e soluções
+## Problemas comuns
 
-### Caminho não encontrado
-
-Mensagem:
-
-- Caminho não encontrado
-
-Solução:
+Erro: Caminho nao encontrado
 
 - Verifique o valor de --input.
 - Confirme se o arquivo/pasta existe.
 
-### Arquivo sem extensão .feature
+Erro: O arquivo de entrada deve ter a extensao .feature
 
-Mensagem:
+- Use um arquivo .feature valido.
 
-- O arquivo de entrada deve ter a extensão .feature
+Erro: Nenhum arquivo .feature encontrado no diretorio
 
-Solução:
+- Confirme se a pasta contem arquivos .feature.
+- A busca em pastas e recursiva.
 
-- Use um arquivo .feature válido.
+## Licenca
 
-### Nenhum arquivo .feature encontrado no diretório
-
-Solução:
-
-- Confirme se a pasta contém arquivos .feature.
-- Verifique subpastas (a busca é recursiva).
-
-## Desenvolvimento
-
-### Rodar análise estática
-
-```bash
-dart analyze
-```
-
-### Rodar testes
-
-```bash
-dart test
-```
-
-## Estrutura do projeto
-
-```text
-bin/
-	maestro_bdd_generator.dart      # Entrada do CLI
-lib/
-	maestro_bdd_generator_cli.dart  # Lógica de geração e Smart Merge
-test/
-	maestro_bdd_generator_test.dart # Testes
-```
-
-## Licença
 MIT
